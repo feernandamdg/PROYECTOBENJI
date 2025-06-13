@@ -4,39 +4,32 @@ const UserContext = createContext()
 
 export function UserProvider({ children }) {
   const [usuario, setUsuario] = useState(null)
+  const [cargando, setCargando] = useState(true)
 
-  // Restaurar usuario desde localStorage
   useEffect(() => {
     const usuarioGuardado = localStorage.getItem('usuario')
     if (usuarioGuardado) {
       setUsuario(JSON.parse(usuarioGuardado))
     }
+    setCargando(false)
   }, [])
 
   async function login({ email, password }) {
     try {
-      if (!email || !password) {
-        throw new Error('Correo y contraseña son requeridos')
-      }
-
       const res = await fetch('http://localhost:3001/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       })
-
       const data = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al iniciar sesión')
-      }
+      if (!res.ok) throw new Error(data.error)
 
       localStorage.setItem('usuario', JSON.stringify(data.usuario))
       setUsuario(data.usuario)
       return { success: true }
-    } catch (error) {
-      console.error('Login error:', error)
-      return { success: false, error: error.message }
+    } catch (err) {
+      return { success: false, error: err.message }
     }
   }
 
@@ -51,8 +44,10 @@ export function UserProvider({ children }) {
     localStorage.setItem('usuario', JSON.stringify(nuevoUsuario))
   }
 
+  const esAdmin = usuario?.rol === 'admin'
+
   return (
-    <UserContext.Provider value={{ usuario, login, logout, register }}>
+    <UserContext.Provider value={{ usuario, login, logout, register, esAdmin, cargando }}>
       {children}
     </UserContext.Provider>
   )

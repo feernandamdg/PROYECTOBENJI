@@ -3,14 +3,20 @@ import { useCart } from '../context/CartContext'
 function ProductCard({ producto }) {
   const { agregarProducto } = useCart()
 
-  const imagenMostrada = producto.imagen || 'https://via.placeholder.com/250x200?text=Sin+imagen'
-
   return (
     <div style={styles.card}>
-      <img src={imagenMostrada} alt={producto.nombre} style={styles.imagen} />
+      <img src={producto.imagen} alt={producto.nombre} style={styles.imagen} />
+      
       <h3>{producto.nombre}</h3>
       <p>{producto.descripcion}</p>
-      <p><strong>${parseFloat(producto.precio).toFixed(2)}</strong></p>
+
+      {/* Nueva información agregada */}
+      <p><strong>Tipo:</strong> {producto.tipo_cerveza}</p>
+      <p><strong>Origen:</strong> {producto.origen}</p>
+      <p><strong>País:</strong> {producto.pais}</p>
+
+      <p><strong>${Number(producto.precio).toFixed(2)}</strong></p>
+
       <button style={styles.boton} onClick={() => agregarProducto(producto)}>
         Añadir al carrito
       </button>

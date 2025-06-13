@@ -1,22 +1,40 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
+import { useState } from 'react'
 
 function Navbar() {
   const { usuario, logout } = useUser()
+  const navigate = useNavigate()
+  const [busqueda, setBusqueda] = useState('')
+
+  const manejarBusqueda = (e) => {
+    e.preventDefault()
+    if (busqueda.trim()) {
+      navigate(`/?q=${encodeURIComponent(busqueda.trim())}`)
+      setBusqueda('')
+    }
+  }
 
   return (
     <nav style={styles.nav}>
       <div style={styles.logo}>🍺 <b>CheveMarket</b></div>
+      <form onSubmit={manejarBusqueda} style={styles.searchForm}>
+        <input
+          type="text"
+          placeholder="Buscar cerveza, tipo..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={styles.searchInput}
+        />
+        <button type="submit" style={styles.searchButton}>🔍</button>
+      </form>
       <div style={styles.links}>
         <Link to="/" style={styles.link}>Inicio</Link>
         <Link to="/carrito" style={styles.link}>Carrito</Link>
 
         {usuario ? (
           <>
-            {/* Mostrar Dashboard solo si el usuario es admin */}
-            {usuario.rol === 'admin' && (
-              <Link to="/admin" style={styles.link}>Dashboard</Link>
-            )}
+            {usuario.rol === 'admin' && <Link to="/admin" style={styles.link}>Dashboard</Link>}
             <span style={styles.nombre}>Hola, {usuario.nombre}</span>
             <button onClick={logout} style={styles.logout}>Cerrar sesión</button>
           </>
@@ -63,6 +81,26 @@ const styles = {
     padding: '5px 10px',
     cursor: 'pointer',
     borderRadius: '5px'
+  },
+  searchForm: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  },
+  searchInput: {
+    padding: '5px',
+    borderRadius: '4px',
+    border: 'none',
+    fontSize: '1em'
+  },
+  searchButton: {
+    padding: '5px 10px',
+    borderRadius: '4px',
+    border: 'none',
+    backgroundColor: '#fff',
+    color: '#f57c00',
+    cursor: 'pointer',
+    fontWeight: 'bold'
   }
 }
 

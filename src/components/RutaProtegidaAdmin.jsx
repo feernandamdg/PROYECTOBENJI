@@ -1,3 +1,4 @@
+//esta ruta detecta si es admin o no para que pueda mostrarse en la navbar, si no es admin no se muestra.
 import { Navigate } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 
