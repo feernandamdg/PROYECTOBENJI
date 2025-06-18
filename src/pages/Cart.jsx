@@ -1,4 +1,3 @@
-// 📄 Cart.jsx (actualizado con Finalizar compra)
 import { useCart } from '../context/CartContext'
 import { useUser } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
@@ -17,12 +16,15 @@ function Cart() {
     }
 
     try {
+      const ref = localStorage.getItem('ref') || null
+
       const res = await fetch('http://localhost:3001/api/ordenes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           usuario_id: usuario.id,
-          carrito: carrito
+          carrito,
+          ref
         })
       })
 
@@ -31,6 +33,7 @@ function Cart() {
       if (res.ok) {
         alert(`✅ Compra realizada con éxito. Orden #${data.orden_id}`)
         vaciarCarrito()
+        localStorage.removeItem('ref') // ✅ Eliminar ref después de la compra
         navigate('/')
       } else {
         alert('❌ Error al finalizar la compra: ' + data.error)

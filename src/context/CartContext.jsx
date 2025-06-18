@@ -1,3 +1,4 @@
+// 📄 context/CartContext.jsx
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const CartContext = createContext()
@@ -5,7 +6,6 @@ const CartContext = createContext()
 export function CartProvider({ children }) {
   const [carrito, setCarrito] = useState([])
 
-  // Restaurar carrito desde localStorage al iniciar
   useEffect(() => {
     const guardado = localStorage.getItem('carrito')
     if (guardado) {
@@ -13,7 +13,6 @@ export function CartProvider({ children }) {
     }
   }, [])
 
-  // Guardar automáticamente el carrito en localStorage
   useEffect(() => {
     localStorage.setItem('carrito', JSON.stringify(carrito))
   }, [carrito])
@@ -31,7 +30,22 @@ export function CartProvider({ children }) {
     })
   }
 
-  const quitarProducto = (id) => { //checar esta funcion
+  const agregarConReferido = (producto, referido_por) => {
+    setCarrito(prev => {
+      const yaExiste = prev.find(p => p.id === producto.id)
+      if (yaExiste) {
+        return prev.map(p =>
+          p.id === producto.id
+            ? { ...p, cantidad: p.cantidad + 1 }
+            : p
+        )
+      } else {
+        return [...prev, { ...producto, cantidad: 1, referido_por }]
+      }
+    })
+  }
+
+  const quitarProducto = (id) => {
     setCarrito(prev => prev.filter(p => p.id !== id))
   }
 
@@ -40,7 +54,7 @@ export function CartProvider({ children }) {
   }
 
   return (
-    <CartContext.Provider value={{ carrito, agregarProducto, quitarProducto, vaciarCarrito }}>
+    <CartContext.Provider value={{ carrito, agregarProducto, agregarConReferido, quitarProducto, vaciarCarrito }}>
       {children}
     </CartContext.Provider>
   )

@@ -1,3 +1,4 @@
+// 📄 context/UserContext.jsx
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const UserContext = createContext()
@@ -39,15 +40,32 @@ export function UserProvider({ children }) {
   }
 
   async function register(nombre, email, password) {
-    const nuevoUsuario = { nombre, email, rol: 'cliente' }
+    const nuevoUsuario = { nombre, email, rol: 'cliente', afiliado: false }
     setUsuario(nuevoUsuario)
     localStorage.setItem('usuario', JSON.stringify(nuevoUsuario))
   }
 
+  async function afiliarUsuario(id) {
+    try {
+      const res = await fetch('http://localhost:3001/api/users/afiliar', {
+        method: 'POST',
+        headers: { id }
+      })
+      if (!res.ok) throw new Error()
+      const actualizado = { ...usuario, afiliado: true }
+      setUsuario(actualizado)
+      localStorage.setItem('usuario', JSON.stringify(actualizado))
+      return { success: true }
+    } catch {
+      return { success: false }
+    }
+  }
+
   const esAdmin = usuario?.rol === 'admin'
+  const esAfiliado = usuario?.afiliado === true
 
   return (
-    <UserContext.Provider value={{ usuario, login, logout, register, esAdmin, cargando }}>
+    <UserContext.Provider value={{ usuario, login, logout, register, esAdmin, esAfiliado, cargando, afiliarUsuario }}>
       {children}
     </UserContext.Provider>
   )
